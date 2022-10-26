@@ -40,7 +40,6 @@ fun Content() {
             R.drawable.image1,
             R.drawable.image2,
             R.drawable.image3,
-            R.drawable.image4,
         )
     }
 
@@ -55,7 +54,7 @@ fun Content() {
             Image(
                 painter = painterResource(id = listId[index]),
                 contentDescription = "",
-                modifier = scaleModifier,
+                modifier = scaleModifier.fillMaxSize(),
             )
         }
     }
