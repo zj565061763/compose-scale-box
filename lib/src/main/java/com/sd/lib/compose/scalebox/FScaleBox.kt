@@ -389,30 +389,55 @@ private class FScaleBoxState(
     }
 
     private suspend fun checkOffset() {
-        with(boundsX) {
+        var targetXBlock: (() -> Unit)? = null
+        val targetX = with(boundsX) {
             if (isOverSize) {
                 if (offsetX < minOffset) {
-                    animateOffsetXTo(minOffset)
+                    minOffset
                 } else if (offsetX > maxOffset) {
-                    animateOffsetXTo(maxOffset)
+                    maxOffset
+                } else {
+                    null
                 }
             } else {
-                animateOffsetXTo(centerOffset)
-                transformOrigin = transformOrigin.copy(pivotFractionX = 0.5f)
-                offsetX = 0f
+                targetXBlock = {
+                    transformOrigin = transformOrigin.copy(pivotFractionX = 0.5f)
+                    offsetX = 0f
+                }
+                centerOffset
             }
         }
-        with(boundsY) {
+
+        var targetYBlock: (() -> Unit)? = null
+        val targetY = with(boundsY) {
             if (isOverSize) {
                 if (offsetY < minOffset) {
-                    animateOffsetYTo(minOffset)
+                    minOffset
                 } else if (offsetY > maxOffset) {
-                    animateOffsetYTo(maxOffset)
+                    maxOffset
+                } else {
+                    null
                 }
             } else {
-                animateOffsetYTo(centerOffset)
-                transformOrigin = transformOrigin.copy(pivotFractionY = 0.5f)
-                offsetY = 0f
+                targetYBlock = {
+                    transformOrigin = transformOrigin.copy(pivotFractionY = 0.5f)
+                    offsetY = 0f
+                }
+                centerOffset
+            }
+        }
+
+        targetX?.let { target ->
+            coroutineScope.launch {
+                animateOffsetXTo(target)
+                targetXBlock?.invoke()
+            }
+        }
+
+        targetY?.let { target ->
+            coroutineScope.launch {
+                animateOffsetYTo(target)
+                targetYBlock?.invoke()
             }
         }
     }
