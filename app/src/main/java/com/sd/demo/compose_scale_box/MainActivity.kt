@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,18 +35,27 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun Content() {
+    val listId = remember {
+        listOf(
+            R.drawable.image1,
+            R.drawable.image2,
+            R.drawable.image3,
+            R.drawable.image4,
+        )
+    }
+
     HorizontalPager(
-        count = 10,
+        count = listId.size,
         modifier = Modifier.fillMaxSize(),
-    ) {
+    ) { index ->
         FScaleBox(
             modifier = Modifier.fillMaxSize(),
             onTap = { logMsg { "onTap" } }
-        ) {
+        ) { scaleModifier ->
             Image(
-                painter = painterResource(id = R.drawable.water),
+                painter = painterResource(id = listId[index]),
                 contentDescription = "",
-                modifier = it,
+                modifier = scaleModifier,
             )
         }
     }
