@@ -6,13 +6,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.sd.demo.compose_scale_box.ui.theme.AppTheme
@@ -25,16 +26,32 @@ class MainActivity : ComponentActivity() {
             AppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Content()
+                    PagerSample()
                 }
             }
         }
     }
 }
 
+@Composable
+fun SimpleSample() {
+    FScaleBox(
+        modifier = Modifier.fillMaxSize(),
+        onTap = {
+            logMsg { "onTap" }
+        }
+    ) { scaleModifier ->
+        Image(
+            painter = painterResource(id = R.drawable.image1),
+            modifier = scaleModifier,
+            contentDescription = "",
+        )
+    }
+}
+
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun Content() {
+fun PagerSample() {
     val listId = remember {
         listOf(
             R.drawable.image1,
@@ -53,18 +70,11 @@ fun Content() {
         ) { scaleModifier ->
             Image(
                 painter = painterResource(id = listId[index]),
+                modifier = scaleModifier.fillMaxWidth(),
+                contentScale = ContentScale.FillWidth,
                 contentDescription = "",
-                modifier = scaleModifier.fillMaxSize(),
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    AppTheme {
-        Content()
     }
 }
 
