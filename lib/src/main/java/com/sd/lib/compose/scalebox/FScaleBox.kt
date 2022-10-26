@@ -494,10 +494,9 @@ private class BoundsHandler(
         }
 
     fun getViewportPivot(contentOffset: Float, centroid: Float): Float {
-        val pivotSize = changedSize * (pivot)
-        val startOffset = pivotSize - halfDeltaSize - contentOffset
-        val centroidOffset = startOffset + centroid
-        return centroidOffset / currentSize
+        val originalSize = centroid - halfDeltaSize
+        val scaleSize = changedSize * pivot - contentOffset
+        return (originalSize + scaleSize) / currentSize
     }
 }
 
