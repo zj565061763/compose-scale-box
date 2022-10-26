@@ -44,7 +44,7 @@ fun Content() {
     ) { page ->
         FScaleBox(
             modifier = Modifier.fillMaxSize(),
-            debug = page == 2,
+            debug = page == 0,
             onTap = {
                 logMsg { "onTap" }
             }
