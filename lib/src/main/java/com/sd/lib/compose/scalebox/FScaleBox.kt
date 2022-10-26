@@ -30,7 +30,14 @@ import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 @Composable
+fun rememberFScaleBoxState(): FScaleBoxState {
+    val coroutineScope = rememberCoroutineScope()
+    return remember { FScaleBoxState(coroutineScope) }
+}
+
+@Composable
 fun FScaleBox(
+    state: FScaleBoxState = rememberFScaleBoxState(),
     modifier: Modifier = Modifier,
     debug: Boolean = false,
     trackParentConsume: Boolean? = true,
@@ -39,9 +46,6 @@ fun FScaleBox(
 ) {
     val debugUpdated by rememberUpdatedState(debug)
     val trackParentConsumeUpdated by rememberUpdatedState(trackParentConsume)
-
-    val coroutineScope = rememberCoroutineScope()
-    val state = remember { FScaleBoxState(coroutineScope) }
 
     var hasMove by remember { mutableStateOf(false) }
 
@@ -171,7 +175,7 @@ fun FScaleBox(
                             )
                         }
                         .fClick(
-                            onTap = { if (!state.hasScaled) onTap?.invoke() },
+                            onTap = { onTap?.invoke() },
                             onDoubleTap = { state.handleDoubleClick() },
                         )
                 } else {
@@ -195,9 +199,9 @@ fun FScaleBox(
     }
 }
 
-private class FScaleBoxState(
-    val coroutineScope: CoroutineScope,
-) {
+class FScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
+    private val _coroutineScope = coroutineScope
+
     private val defaultScale = 1f
     private val maxScale = 10f
     private val doubleClickScale = 3f
@@ -209,9 +213,9 @@ private class FScaleBoxState(
     private var _animateOffsetX = Animatable(0f)
     private var _animateOffsetY = Animatable(0f)
 
-    var boxSize by mutableStateOf(IntSize.Zero)
-    var contentSize by mutableStateOf(IntSize.Zero)
-    val isReady by derivedStateOf {
+    internal var boxSize by mutableStateOf(IntSize.Zero)
+    internal var contentSize by mutableStateOf(IntSize.Zero)
+    internal val isReady by derivedStateOf {
         boxSize.width > 0 && boxSize.height > 0
                 && contentSize.width > 0 && contentSize.height > 0
     }
@@ -244,21 +248,19 @@ private class FScaleBoxState(
             pivot = transformOrigin.pivotFractionY,
         )
 
-    val hasScaled get() = scale != defaultScale
-
     private var _isFirstScale = false
     private var _startScale = 1f
 
-    fun cancelAnimator() {
-        coroutineScope.launch {
+    internal fun cancelAnimator() {
+        _coroutineScope.launch {
             _animateScale.stop()
             _animateOffsetX.stop()
             _animateOffsetY.stop()
         }
     }
 
-    fun handleDoubleClick() {
-        coroutineScope.launch {
+    internal fun handleDoubleClick() {
+        _coroutineScope.launch {
             if (scale == defaultScale) {
                 animateScaleTo(doubleClickScale)
             } else {
@@ -267,7 +269,7 @@ private class FScaleBoxState(
         }
     }
 
-    fun handleDrag(change: Offset): DragResult {
+    internal fun handleDrag(change: Offset): DragResult {
         val oldX = offsetX
         val oldY = offsetY
 
@@ -304,8 +306,8 @@ private class FScaleBoxState(
         }
     }
 
-    fun handleDragFling(velocity: Velocity) {
-        coroutineScope.launch {
+    internal fun handleDragFling(velocity: Velocity) {
+        _coroutineScope.launch {
             with(boundsX) {
                 _animateOffsetX.stop()
                 _animateOffsetX = Animatable(offsetX).apply { updateBounds(minOffset, maxOffset) }
@@ -317,7 +319,7 @@ private class FScaleBoxState(
                 }
             }
         }
-        coroutineScope.launch {
+        _coroutineScope.launch {
             with(boundsY) {
                 _animateOffsetY.stop()
                 _animateOffsetY = Animatable(offsetY).apply { updateBounds(minOffset, maxOffset) }
@@ -331,12 +333,12 @@ private class FScaleBoxState(
         }
     }
 
-    fun onScaleStart() {
+    internal fun onScaleStart() {
         _isFirstScale = true
         _startScale = scale
     }
 
-    fun onScale(event: PointerEvent, centroid: Offset, change: Float) {
+    internal fun onScale(event: PointerEvent, centroid: Offset, change: Float) {
         event.fConsume()
 
         val min = minScaleDrag
@@ -351,8 +353,8 @@ private class FScaleBoxState(
         scale = newScale
     }
 
-    fun onScaleFinish() {
-        coroutineScope.launch {
+    internal fun onScaleFinish() {
+        _coroutineScope.launch {
             if (scale <= defaultScale) {
                 animateScaleTo(defaultScale)
                 return@launch
@@ -428,14 +430,14 @@ private class FScaleBoxState(
         }
 
         targetX?.let { target ->
-            coroutineScope.launch {
+            _coroutineScope.launch {
                 animateOffsetXTo(target)
                 targetXBlock?.invoke()
             }
         }
 
         targetY?.let { target ->
-            coroutineScope.launch {
+            _coroutineScope.launch {
                 animateOffsetYTo(target)
                 targetYBlock?.invoke()
             }
@@ -444,8 +446,8 @@ private class FScaleBoxState(
 
     private suspend fun animateScaleTo(targetValue: Float) {
         if (targetValue <= defaultScale) {
-            coroutineScope.launch { animateOffsetXTo(0f) }
-            coroutineScope.launch { animateOffsetYTo(0f) }
+            _coroutineScope.launch { animateOffsetXTo(0f) }
+            _coroutineScope.launch { animateOffsetYTo(0f) }
         }
 
         _animateScale.snapTo(scale)
@@ -525,7 +527,7 @@ private class BoundsHandler(
     }
 }
 
-private enum class DragResult {
+internal enum class DragResult {
     Changed,
     Unchanged,
     OverDragX,

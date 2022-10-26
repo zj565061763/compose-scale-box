@@ -5,15 +5,11 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -41,13 +37,10 @@ fun Content() {
     HorizontalPager(
         count = 10,
         modifier = Modifier.fillMaxSize(),
-    ) { page ->
+    ) {
         FScaleBox(
             modifier = Modifier.fillMaxSize(),
-            debug = page == 0,
-            onTap = {
-                logMsg { "onTap" }
-            }
+            onTap = { logMsg { "onTap" } }
         ) {
             Image(
                 painter = painterResource(id = R.drawable.water),
@@ -55,25 +48,6 @@ fun Content() {
                 modifier = it,
             )
         }
-    }
-}
-
-@Composable
-private fun TestImage(
-    modifier: Modifier = Modifier,
-) {
-    Box(modifier = modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(id = R.drawable.water),
-            contentDescription = "",
-            modifier = Modifier
-                .align(Alignment.Center)
-                .graphicsLayer(
-                    scaleX = 2f,
-                    scaleY = 2f,
-                    transformOrigin = TransformOrigin(0f, 0.5f),
-                ),
-        )
     }
 }
 
