@@ -129,8 +129,8 @@ fun FScaleBox(
                             }
                         },
                         onUp = { input ->
-                            if (!input.isConsumed && pointerCount == 1) {
-                                if (maxPointerCount == 1 && hasMove) {
+                            if (!input.isConsumed && pointerCount == 1 && maxPointerCount == 1) {
+                                if (hasMove) {
                                     val velocity = getPointerVelocity(input.id)
                                     state.handleDragFling(velocity)
                                 }
