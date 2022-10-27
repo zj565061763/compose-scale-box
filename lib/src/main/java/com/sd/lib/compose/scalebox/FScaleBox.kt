@@ -21,10 +21,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
-import com.sd.lib.compose.gesture.fClick
-import com.sd.lib.compose.gesture.fConsume
-import com.sd.lib.compose.gesture.fPointerChange
-import com.sd.lib.compose.gesture.fScaleGesture
+import com.sd.lib.compose.gesture.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -339,7 +336,7 @@ class FScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
     }
 
     internal fun onScale(event: PointerEvent, centroid: Offset, change: Float) {
-        event.fConsume()
+        event.fConsumePositionChanged()
 
         val min = minScaleDrag
         val max = if (_startScale == maxScale) maxScaleDrag else maxScale
