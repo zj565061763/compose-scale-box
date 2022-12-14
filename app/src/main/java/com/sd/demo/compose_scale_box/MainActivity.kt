@@ -78,6 +78,6 @@ fun PagerSample() {
     }
 }
 
-fun logMsg(block: () -> String) {
-    Log.i("compose-scale-box-demo", block())
+inline fun logMsg(block: () -> String) {
+    Log.i("FScaleBox-demo", block())
 }

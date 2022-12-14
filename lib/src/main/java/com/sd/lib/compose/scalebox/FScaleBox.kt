@@ -21,7 +21,10 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
-import com.sd.lib.compose.gesture.*
+import com.sd.lib.compose.gesture.fClick
+import com.sd.lib.compose.gesture.fConsumePositionChanged
+import com.sd.lib.compose.gesture.fPointerChange
+import com.sd.lib.compose.gesture.fScaleGesture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -65,8 +68,8 @@ fun FScaleBox(
                         val offset = layout.offset()
                         if (tracker.track(offset)) {
                             isConsumedByParent = false
-                            if (debugUpdated) {
-                                logMsg { "isConsumedByParent false, track init:${tracker.initOffset} direction:${tracker.directionOffset} offset:$offset" }
+                            logMsg(debugUpdated) {
+                                "isConsumedByParent false, track init:${tracker.initOffset} direction:${tracker.directionOffset} offset:$offset"
                             }
                         }
                     }
@@ -76,9 +79,7 @@ fun FScaleBox(
                 if (state.isReady) {
                     fPointerChange(
                         onStart = {
-                            if (debugUpdated) {
-                                logMsg { "onStart" }
-                            }
+                            logMsg(debugUpdated) { "onStart" }
                             enableVelocity = true
                             hasMove = false
                             mapDragResult.clear()
@@ -103,9 +104,7 @@ fun FScaleBox(
                                                 boxLayout?.let { layout ->
                                                     val offset = layout.offset()
                                                     boxOffsetTracker = OffsetTracker.x(offset)
-                                                    if (debugUpdated) {
-                                                        logMsg { "create offset tracker x $offset" }
-                                                    }
+                                                    logMsg(debugUpdated) { "create offset tracker x $offset" }
                                                 }
                                             }
                                         }
@@ -114,9 +113,7 @@ fun FScaleBox(
                                                 boxLayout?.let { layout ->
                                                     val offset = layout.offset()
                                                     boxOffsetTracker = OffsetTracker.y(offset)
-                                                    if (debugUpdated) {
-                                                        logMsg { "create offset tracker y $offset" }
-                                                    }
+                                                    logMsg(debugUpdated) { "create offset tracker y $offset" }
                                                 }
                                             }
                                         }
@@ -136,9 +133,7 @@ fun FScaleBox(
                         onFinish = {
                             isConsumedByParent = false
                             boxOffsetTracker = null
-                            if (debugUpdated) {
-                                logMsg { "onFinish" }
-                            }
+                            logMsg(debugUpdated) { "onFinish" }
                         }
                     )
                         .fPointerChange(
@@ -149,9 +144,7 @@ fun FScaleBox(
                                     if (dragResult == DragResult.OverDragX || dragResult == DragResult.OverDragY) {
                                         if (!isConsumedByParent && boxOffsetTracker != null) {
                                             isConsumedByParent = true
-                                            if (debugUpdated) {
-                                                logMsg { "isConsumedByParent true" }
-                                            }
+                                            logMsg(debugUpdated) { "isConsumedByParent true" }
                                         }
                                     }
                                 }
@@ -543,6 +536,8 @@ private fun LayoutCoordinates.offset(): Offset {
     return this.localToWindow(Offset.Zero)
 }
 
-internal inline fun logMsg(block: () -> String) {
-    Log.i("compose-scale-box", block())
+internal inline fun logMsg(isDebug: Boolean, block: () -> String) {
+    if (isDebug) {
+        Log.i("FScaleBox", block())
+    }
 }
