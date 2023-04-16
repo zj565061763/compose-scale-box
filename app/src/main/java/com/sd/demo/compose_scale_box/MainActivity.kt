@@ -9,8 +9,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -24,17 +22,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AppTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    PagerSample()
-                }
+                Sample()
             }
         }
     }
 }
 
 @Composable
-fun SimpleSample() {
+private fun Sample() {
     FScaleBox(
         modifier = Modifier.fillMaxSize(),
         onTap = {
@@ -51,7 +46,7 @@ fun SimpleSample() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PagerSample() {
+private fun SampleInPager() {
     val listId = remember {
         listOf(
             R.drawable.image1,
