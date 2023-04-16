@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -14,8 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
 import com.sd.demo.compose_scale_box.ui.theme.AppTheme
 import com.sd.lib.compose.scalebox.FScaleBox
 
@@ -49,7 +49,7 @@ fun SimpleSample() {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PagerSample() {
     val listId = remember {
@@ -61,7 +61,7 @@ fun PagerSample() {
     }
 
     HorizontalPager(
-        count = listId.size,
+        pageCount = listId.size,
         modifier = Modifier.fillMaxSize(),
     ) { index ->
         FScaleBox(
