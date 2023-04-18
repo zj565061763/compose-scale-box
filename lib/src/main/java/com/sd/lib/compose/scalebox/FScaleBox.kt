@@ -81,73 +81,74 @@ fun FScaleBox(
                     }
                 }
             }
-            .run {
+            .let {
                 if (state.isReady) {
-                    fPointerChange(
-                        onStart = {
-                            logMsg(debug) { "onStart" }
-                            enableVelocity = true
-                            calculatePan = true
-                            calculateZoom = true
-                            hasMove = false
-                            mapDragResult.clear()
-                            isConsumedByParent = false
-                            boxOffsetTracker = null
-                            state.cancelAnimator()
-                        },
-                        onMove = { input ->
-                            if (!input.isConsumed && pointerCount == 1) {
-                                if (!isConsumedByParent) {
-                                    val change = input.positionChange()
-                                    val dragResult = state.handleDrag(change)
-                                    mapDragResult[input.id] = dragResult
+                    it
+                        .fPointerChange(
+                            onStart = {
+                                logMsg(debug) { "onStart" }
+                                enableVelocity = true
+                                calculatePan = true
+                                calculateZoom = true
+                                hasMove = false
+                                mapDragResult.clear()
+                                isConsumedByParent = false
+                                boxOffsetTracker = null
+                                state.cancelAnimator()
+                            },
+                            onMove = { input ->
+                                if (!input.isConsumed && pointerCount == 1) {
+                                    if (!isConsumedByParent) {
+                                        val change = input.positionChange()
+                                        val dragResult = state.handleDrag(change)
+                                        mapDragResult[input.id] = dragResult
 
-                                    when (dragResult) {
-                                        DragResult.Changed -> {
-                                            input.consume()
-                                            hasMove = true
-                                        }
+                                        when (dragResult) {
+                                            DragResult.Changed -> {
+                                                input.consume()
+                                                hasMove = true
+                                            }
 
-                                        DragResult.OverDragX -> {
-                                            if (boxOffsetTracker == null && trackParentConsumeUpdated == true) {
-                                                boxLayout?.let { layout ->
-                                                    val offset = layout.offset()
-                                                    boxOffsetTracker = OffsetTracker.x(offset)
-                                                    logMsg(debug) { "create offset tracker x $offset" }
+                                            DragResult.OverDragX -> {
+                                                if (boxOffsetTracker == null && trackParentConsumeUpdated == true) {
+                                                    boxLayout?.let { layout ->
+                                                        val offset = layout.offset()
+                                                        boxOffsetTracker = OffsetTracker.x(offset)
+                                                        logMsg(debug) { "create offset tracker x $offset" }
+                                                    }
                                                 }
                                             }
-                                        }
 
-                                        DragResult.OverDragY -> {
-                                            if (boxOffsetTracker == null && trackParentConsumeUpdated == false) {
-                                                boxLayout?.let { layout ->
-                                                    val offset = layout.offset()
-                                                    boxOffsetTracker = OffsetTracker.y(offset)
-                                                    logMsg(debug) { "create offset tracker y $offset" }
+                                            DragResult.OverDragY -> {
+                                                if (boxOffsetTracker == null && trackParentConsumeUpdated == false) {
+                                                    boxLayout?.let { layout ->
+                                                        val offset = layout.offset()
+                                                        boxOffsetTracker = OffsetTracker.y(offset)
+                                                        logMsg(debug) { "create offset tracker y $offset" }
+                                                    }
                                                 }
                                             }
-                                        }
 
-                                        else -> {}
+                                            else -> {}
+                                        }
                                     }
                                 }
-                            }
-                        },
-                        onUp = { input ->
-                            if (!input.isConsumed && pointerCount == 1 && maxPointerCount == 1) {
-                                if (hasMove) {
-                                    getPointerVelocity(input.id)?.let { velocity ->
-                                        state.handleDragFling(velocity)
+                            },
+                            onUp = { input ->
+                                if (!input.isConsumed && pointerCount == 1 && maxPointerCount == 1) {
+                                    if (hasMove) {
+                                        getPointerVelocity(input.id)?.let { velocity ->
+                                            state.handleDragFling(velocity)
+                                        }
                                     }
                                 }
+                            },
+                            onFinish = {
+                                isConsumedByParent = false
+                                boxOffsetTracker = null
+                                logMsg(debug) { "onFinish" }
                             }
-                        },
-                        onFinish = {
-                            isConsumedByParent = false
-                            boxOffsetTracker = null
-                            logMsg(debug) { "onFinish" }
-                        }
-                    )
+                        )
                         .fPointerChange(
                             pass = PointerEventPass.Final,
                             onMove = {
@@ -181,7 +182,7 @@ fun FScaleBox(
                             onDoubleTap = { state.handleDoubleClick() },
                         )
                 } else {
-                    this
+                    it
                 }
             }
 
