@@ -50,7 +50,6 @@ fun ScaleBox(
 ) {
     var hasDrag by remember { mutableStateOf(false) }
     var hasScale by remember { mutableStateOf(false) }
-    var zoomHolder by remember { mutableStateOf(1f) }
 
     Box(
         modifier = modifier
@@ -105,11 +104,8 @@ fun ScaleBox(
                             },
                             onCalculate = {
                                 if (currentEvent?.fHasConsumed() == false) {
-                                    val oldZoom = zoomHolder
-                                    zoomHolder = this.zoom
-
-                                    hasScale = true
-                                    if (oldZoom == 1f) {
+                                    if (!hasScale) {
+                                        hasScale = true
                                         logMsg(debug) { "zoom onScaleStart" }
                                         state.onScaleStart()
                                     }
@@ -127,7 +123,6 @@ fun ScaleBox(
                                     if (hasScale) {
                                         logMsg(debug) { "zoom onScaleFinish" }
                                         hasScale = false
-                                        zoomHolder = 1f
                                         state.onScaleFinish()
                                     }
                                 }
