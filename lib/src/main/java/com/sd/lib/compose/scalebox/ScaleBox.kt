@@ -30,7 +30,6 @@ import com.sd.lib.compose.gesture.fConsume
 import com.sd.lib.compose.gesture.fConsumePositionChanged
 import com.sd.lib.compose.gesture.fHasConsumed
 import com.sd.lib.compose.gesture.fPointerChange
-import com.sd.lib.compose.gesture.fScaleGesture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -49,7 +48,9 @@ fun ScaleBox(
     onTap: (() -> Unit)? = null,
     content: @Composable (Modifier) -> Unit,
 ) {
-    var hasMove by remember { mutableStateOf(false) }
+    var hasDrag by remember { mutableStateOf(false) }
+    var hasScale by remember { mutableStateOf(false) }
+    var zoomHolder by remember { mutableStateOf(1f) }
 
     Box(
         modifier = modifier
@@ -65,20 +66,21 @@ fun ScaleBox(
                                 state.cancelAnimator()
                             },
                         )
+
                         // calculatePan
                         .fPointerChange(
                             onStart = {
-                                logMsg(debug) { "pan onStart" }
-                                enableVelocity = true
-                                calculatePan = true
-                                hasMove = false
+                                this.enableVelocity = true
+                                this.calculatePan = true
+                                hasDrag = false
                             },
                             onCalculate = {
                                 if (currentEvent?.fHasConsumed() == false && pointerCount == 1) {
                                     when (state.handleDrag(this.pan)) {
                                         DragResult.Changed -> {
+                                            logMsg(debug) { "pan drag" }
                                             currentEvent?.fConsume()
-                                            hasMove = true
+                                            hasDrag = true
                                         }
 
                                         else -> {}
@@ -86,33 +88,65 @@ fun ScaleBox(
                                 }
                             },
                             onUp = { input ->
-                                if (!input.isConsumed && pointerCount == 1) {
-                                    if (hasMove) {
-                                        getPointerVelocity(input.id)?.let { velocity ->
-                                            logMsg(debug) { "pan onUp" }
-                                            state.handleDragFling(velocity)
-                                        }
+                                if (hasDrag && !input.isConsumed && pointerCount == 1) {
+                                    getPointerVelocity(input.id)?.let { velocity ->
+                                        logMsg(debug) { "pan onUp" }
+                                        state.handleDragFling(velocity)
                                     }
                                 }
                             },
-                            onFinish = {
-                                logMsg(debug) { "pan onFinish" }
-                            }
                         )
-                        .fScaleGesture(
+
+                        // calculateZoom
+                        .fPointerChange(
                             onStart = {
-                                state.onScaleStart()
+                                this.calculateZoom = true
+                                hasScale = false
                             },
-                            onFinish = {
-                                state.onScaleFinish()
-                            }
-                        ) { centroid, change ->
-                            state.onScale(
-                                event = currentEvent!!,
-                                centroid = centroid,
-                                change = change,
-                            )
-                        }
+                            onCalculate = {
+                                if (currentEvent?.fHasConsumed() == false) {
+                                    val oldZoom = zoomHolder
+                                    zoomHolder = this.zoom
+
+                                    hasScale = true
+                                    if (oldZoom == 1f) {
+                                        logMsg(debug) { "zoom onScaleStart" }
+                                        state.onScaleStart()
+                                    }
+
+                                    logMsg(debug) { "zoom onScale" }
+                                    state.onScale(
+                                        event = this.currentEvent!!,
+                                        centroid = this.centroid,
+                                        change = this.zoom,
+                                    )
+                                }
+                            },
+                            onUp = {
+                                if (currentEvent?.fHasConsumed() == true || pointerCount <= 2) {
+                                    if (hasScale) {
+                                        logMsg(debug) { "zoom onScaleFinish" }
+                                        hasScale = false
+                                        zoomHolder = 1f
+                                        state.onScaleFinish()
+                                    }
+                                }
+                            },
+                        )
+//                        .fScaleGesture(
+//                            onStart = {
+//                                state.onScaleStart()
+//                            },
+//                            onFinish = {
+//                                state.onScaleFinish()
+//                            }
+//                        ) { centroid, change ->
+//                            state.onScale(
+//                                event = currentEvent!!,
+//                                centroid = centroid,
+//                                change = change,
+//                            )
+//                        }
                         .fClick(
                             onTap = { onTap?.invoke() },
                             onDoubleTap = { state.handleDoubleClick() },
