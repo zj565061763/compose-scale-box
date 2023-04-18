@@ -6,7 +6,14 @@ import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -44,7 +51,6 @@ fun FScaleBox(
     onTap: (() -> Unit)? = null,
     content: @Composable (Modifier) -> Unit,
 ) {
-    val debugUpdated by rememberUpdatedState(debug)
     val trackParentConsumeUpdated by rememberUpdatedState(trackParentConsume)
 
     var hasMove by remember { mutableStateOf(false) }
@@ -68,7 +74,7 @@ fun FScaleBox(
                         val offset = layout.offset()
                         if (tracker.track(offset)) {
                             isConsumedByParent = false
-                            logMsg(debugUpdated) {
+                            logMsg(debug) {
                                 "isConsumedByParent false, track init:${tracker.initOffset} direction:${tracker.directionOffset} offset:$offset"
                             }
                         }
@@ -79,8 +85,10 @@ fun FScaleBox(
                 if (state.isReady) {
                     fPointerChange(
                         onStart = {
-                            logMsg(debugUpdated) { "onStart" }
+                            logMsg(debug) { "onStart" }
                             enableVelocity = true
+                            calculatePan = true
+                            calculateZoom = true
                             hasMove = false
                             mapDragResult.clear()
                             isConsumedByParent = false
@@ -99,24 +107,27 @@ fun FScaleBox(
                                             input.consume()
                                             hasMove = true
                                         }
+
                                         DragResult.OverDragX -> {
                                             if (boxOffsetTracker == null && trackParentConsumeUpdated == true) {
                                                 boxLayout?.let { layout ->
                                                     val offset = layout.offset()
                                                     boxOffsetTracker = OffsetTracker.x(offset)
-                                                    logMsg(debugUpdated) { "create offset tracker x $offset" }
+                                                    logMsg(debug) { "create offset tracker x $offset" }
                                                 }
                                             }
                                         }
+
                                         DragResult.OverDragY -> {
                                             if (boxOffsetTracker == null && trackParentConsumeUpdated == false) {
                                                 boxLayout?.let { layout ->
                                                     val offset = layout.offset()
                                                     boxOffsetTracker = OffsetTracker.y(offset)
-                                                    logMsg(debugUpdated) { "create offset tracker y $offset" }
+                                                    logMsg(debug) { "create offset tracker y $offset" }
                                                 }
                                             }
                                         }
+
                                         else -> {}
                                     }
                                 }
@@ -125,15 +136,16 @@ fun FScaleBox(
                         onUp = { input ->
                             if (!input.isConsumed && pointerCount == 1 && maxPointerCount == 1) {
                                 if (hasMove) {
-                                    val velocity = getPointerVelocity(input.id)
-                                    state.handleDragFling(velocity)
+                                    getPointerVelocity(input.id)?.let { velocity ->
+                                        state.handleDragFling(velocity)
+                                    }
                                 }
                             }
                         },
                         onFinish = {
                             isConsumedByParent = false
                             boxOffsetTracker = null
-                            logMsg(debugUpdated) { "onFinish" }
+                            logMsg(debug) { "onFinish" }
                         }
                     )
                         .fPointerChange(
@@ -144,7 +156,7 @@ fun FScaleBox(
                                     if (dragResult == DragResult.OverDragX || dragResult == DragResult.OverDragY) {
                                         if (!isConsumedByParent && boxOffsetTracker != null) {
                                             isConsumedByParent = true
-                                            logMsg(debugUpdated) { "isConsumedByParent true" }
+                                            logMsg(debug) { "isConsumedByParent true" }
                                         }
                                     }
                                 }
