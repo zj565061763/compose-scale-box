@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
 private fun Sample() {
     ScaleBox(
         modifier = Modifier.fillMaxSize(),
+        debug = true,
         onTap = {
             logMsg { "onTap" }
         }
