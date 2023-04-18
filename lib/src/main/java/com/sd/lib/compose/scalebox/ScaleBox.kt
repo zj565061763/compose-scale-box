@@ -74,7 +74,7 @@ fun ScaleBox(
                                 hasDrag = false
                             },
                             onCalculate = {
-                                if (currentEvent?.fHasConsumed() == false && pointerCount == 1) {
+                                if (currentEvent?.fHasConsumed() == false && maxPointerCount == 1) {
                                     when (state.handleDrag(this.pan)) {
                                         DragResult.Changed -> {
                                             logMsg(debug) { "pan drag" }
@@ -87,7 +87,7 @@ fun ScaleBox(
                                 }
                             },
                             onUp = { input ->
-                                if (hasDrag && !input.isConsumed && pointerCount == 1) {
+                                if (hasDrag && !input.isConsumed && maxPointerCount == 1) {
                                     getPointerVelocity(input.id)?.let { velocity ->
                                         logMsg(debug) { "pan onUp" }
                                         state.handleDragFling(velocity)
@@ -119,7 +119,7 @@ fun ScaleBox(
                                 }
                             },
                             onUp = {
-                                if (currentEvent?.fHasConsumed() == true || pointerCount <= 2) {
+                                if (currentEvent?.fHasConsumed() == true || pointerCount == 2) {
                                     if (hasScale) {
                                         logMsg(debug) { "zoom onScaleFinish" }
                                         hasScale = false
