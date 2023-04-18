@@ -75,9 +75,10 @@ fun ScaleBox(
                             },
                             onCalculate = {
                                 if (currentEvent?.fHasConsumed() == false && maxPointerCount == 1) {
-                                    when (state.handleDrag(this.pan)) {
+                                    val dragResult = state.handleDrag(this.pan)
+                                    logMsg(debug) { "pan drag $dragResult" }
+                                    when (dragResult) {
                                         DragResult.Changed -> {
-                                            logMsg(debug) { "pan drag" }
                                             currentEvent?.fConsume()
                                             hasDrag = true
                                         }

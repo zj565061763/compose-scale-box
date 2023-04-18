@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AppTheme {
-                Sample()
+                SampleInPager()
             }
         }
     }
@@ -57,11 +57,12 @@ private fun SampleInPager() {
     }
 
     HorizontalPager(
-        pageCount = listId.size,
         modifier = Modifier.fillMaxSize(),
+        pageCount = listId.size,
     ) { index ->
         ScaleBox(
             modifier = Modifier.fillMaxSize(),
+            debug = true,
             onTap = { logMsg { "onTap" } }
         ) { scaleModifier ->
             Image(
