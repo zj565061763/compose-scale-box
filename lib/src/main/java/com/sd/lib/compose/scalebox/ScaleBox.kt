@@ -37,14 +37,14 @@ import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 @Composable
-fun rememberFScaleBoxState(): FScaleBoxState {
+fun rememberScaleBoxState(): ScaleBoxState {
     val coroutineScope = rememberCoroutineScope()
-    return remember { FScaleBoxState(coroutineScope) }
+    return remember { ScaleBoxState(coroutineScope) }
 }
 
 @Composable
-fun FScaleBox(
-    state: FScaleBoxState = rememberFScaleBoxState(),
+fun ScaleBox(
+    state: ScaleBoxState = rememberScaleBoxState(),
     modifier: Modifier = Modifier,
     debug: Boolean = false,
     trackParentConsume: Boolean? = true,
@@ -202,7 +202,7 @@ fun FScaleBox(
     }
 }
 
-class FScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
+class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
     private val _coroutineScope = coroutineScope
 
     private val defaultScale = 1f
@@ -551,6 +551,6 @@ private fun LayoutCoordinates.offset(): Offset {
 
 internal inline fun logMsg(isDebug: Boolean, block: () -> String) {
     if (isDebug) {
-        Log.i("FScaleBox", block())
+        Log.i("ScaleBox", block())
     }
 }

@@ -8,7 +8,7 @@
 ```kotlin
 @Composable
 fun SimpleSample() {
-    FScaleBox(
+    ScaleBox(
         modifier = Modifier.fillMaxSize(),
         onTap = {
             logMsg { "onTap" }

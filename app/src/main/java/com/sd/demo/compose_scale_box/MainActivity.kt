@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.sd.demo.compose_scale_box.ui.theme.AppTheme
-import com.sd.lib.compose.scalebox.FScaleBox
+import com.sd.lib.compose.scalebox.ScaleBox
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun Sample() {
-    FScaleBox(
+    ScaleBox(
         modifier = Modifier.fillMaxSize(),
         onTap = {
             logMsg { "onTap" }
@@ -59,7 +59,7 @@ private fun SampleInPager() {
         pageCount = listId.size,
         modifier = Modifier.fillMaxSize(),
     ) { index ->
-        FScaleBox(
+        ScaleBox(
             modifier = Modifier.fillMaxSize(),
             onTap = { logMsg { "onTap" } }
         ) { scaleModifier ->
@@ -74,5 +74,5 @@ private fun SampleInPager() {
 }
 
 inline fun logMsg(block: () -> String) {
-    Log.i("FScaleBox-demo", block())
+    Log.i("ScaleBox-demo", block())
 }
