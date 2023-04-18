@@ -130,8 +130,14 @@ fun ScaleBox(
                             },
                         )
                         .fClick(
-                            onTap = { onTap?.invoke() },
-                            onDoubleTap = { state.handleDoubleClick() },
+                            onTap = {
+                                logMsg(debug) { "onTap" }
+                                onTap?.invoke()
+                            },
+                            onDoubleTap = {
+                                logMsg(debug) { "onDoubleTap" }
+                                state.handleDoubleClick()
+                            },
                         )
                 } else {
                     it

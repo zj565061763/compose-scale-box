@@ -33,9 +33,6 @@ private fun Sample() {
     ScaleBox(
         modifier = Modifier.fillMaxSize(),
         debug = true,
-        onTap = {
-            logMsg { "onTap" }
-        }
     ) { scaleModifier ->
         Image(
             painter = painterResource(id = R.drawable.image1),
@@ -63,7 +60,6 @@ private fun SampleInPager() {
         ScaleBox(
             modifier = Modifier.fillMaxSize(),
             debug = true,
-            onTap = { logMsg { "onTap" } }
         ) { scaleModifier ->
             Image(
                 painter = painterResource(id = listId[index]),
