@@ -133,20 +133,6 @@ fun ScaleBox(
                                 }
                             },
                         )
-//                        .fScaleGesture(
-//                            onStart = {
-//                                state.onScaleStart()
-//                            },
-//                            onFinish = {
-//                                state.onScaleFinish()
-//                            }
-//                        ) { centroid, change ->
-//                            state.onScale(
-//                                event = currentEvent!!,
-//                                centroid = centroid,
-//                                change = change,
-//                            )
-//                        }
                         .fClick(
                             onTap = { onTap?.invoke() },
                             onDoubleTap = { state.handleDoubleClick() },
