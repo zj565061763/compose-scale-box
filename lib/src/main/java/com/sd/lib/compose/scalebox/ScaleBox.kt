@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
@@ -501,10 +500,6 @@ private fun Offset.preferX(): Boolean {
 
 private fun Offset.preferY(): Boolean {
     return y.absoluteValue > x.absoluteValue
-}
-
-private fun LayoutCoordinates.offset(): Offset {
-    return this.localToWindow(Offset.Zero)
 }
 
 internal inline fun logMsg(isDebug: Boolean, block: () -> String) {
