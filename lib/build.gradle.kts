@@ -6,7 +6,7 @@ plugins {
 
 val libGroupId = "com.sd.lib.android"
 val libArtifactId = "compose-scale-box"
-val libVersionName = "1.0.0-alpha06"
+val libVersionName = "1.0.0-alpha07"
 
 android {
     namespace = "com.sd.lib.compose.scalebox"
