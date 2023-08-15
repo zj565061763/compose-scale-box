@@ -1,5 +1,6 @@
 package com.sd.lib.compose.scalebox
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.exponentialDecay
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,7 +30,7 @@ import com.sd.lib.compose.gesture.fClick
 import com.sd.lib.compose.gesture.fConsume
 import com.sd.lib.compose.gesture.fConsumePositionChanged
 import com.sd.lib.compose.gesture.fHasConsumed
-import com.sd.lib.compose.gesture.fPointerChange
+import com.sd.lib.compose.gesture.fPointer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -39,6 +41,7 @@ fun rememberScaleBoxState(): ScaleBoxState {
     return remember { ScaleBoxState(coroutineScope) }
 }
 
+@SuppressLint("ModifierParameter")
 @Composable
 fun ScaleBox(
     state: ScaleBoxState = rememberScaleBoxState(),
@@ -58,7 +61,7 @@ fun ScaleBox(
             .let {
                 if (state.isReady) {
                     it
-                        .fPointerChange(
+                        .fPointer(
                             pass = PointerEventPass.Initial,
                             onStart = {
                                 state.cancelAnimator()
@@ -66,19 +69,19 @@ fun ScaleBox(
                         )
 
                         // calculatePan
-                        .fPointerChange(
+                        .fPointer(
                             onStart = {
                                 this.enableVelocity = true
                                 this.calculatePan = true
                                 hasDrag = false
                             },
                             onCalculate = {
-                                if (currentEvent?.fHasConsumed() == false && maxPointerCount == 1) {
+                                if (!currentEvent.fHasConsumed() && maxPointerCount == 1) {
                                     val dragResult = state.handleDrag(this.pan)
                                     logMsg(debug) { "pan drag $dragResult" }
                                     when (dragResult) {
                                         DragResult.Changed -> {
-                                            currentEvent?.fConsume()
+                                            currentEvent.fConsume()
                                             hasDrag = true
                                         }
 
@@ -97,13 +100,13 @@ fun ScaleBox(
                         )
 
                         // calculateZoom
-                        .fPointerChange(
+                        .fPointer(
                             onStart = {
                                 this.calculateZoom = true
                                 hasScale = false
                             },
                             onCalculate = {
-                                if (currentEvent?.fHasConsumed() == false) {
+                                if (!currentEvent.fHasConsumed()) {
                                     if (!hasScale) {
                                         hasScale = true
                                         logMsg(debug) { "zoom onScaleStart" }
@@ -112,14 +115,14 @@ fun ScaleBox(
 
                                     logMsg(debug) { "zoom onScale" }
                                     state.onScale(
-                                        event = this.currentEvent!!,
+                                        event = this.currentEvent,
                                         centroid = this.centroid,
                                         change = this.zoom,
                                     )
                                 }
                             },
                             onUp = {
-                                if (currentEvent?.fHasConsumed() == true || pointerCount == 2) {
+                                if (currentEvent.fHasConsumed() || pointerCount == 2) {
                                     if (hasScale) {
                                         logMsg(debug) { "zoom onScaleFinish" }
                                         hasScale = false
@@ -180,13 +183,13 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
                 && contentSize.width > 0 && contentSize.height > 0
     }
 
-    var scale by mutableStateOf(defaultScale)
+    var scale by mutableFloatStateOf(defaultScale)
         private set
 
-    var offsetX by mutableStateOf(0f)
+    var offsetX by mutableFloatStateOf(0f)
         private set
 
-    var offsetY by mutableStateOf(0f)
+    var offsetY by mutableFloatStateOf(0f)
         private set
 
     var transformOrigin by mutableStateOf(TransformOrigin.Center)
