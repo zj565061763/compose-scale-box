@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -53,9 +54,11 @@ private fun SampleInPager() {
         )
     }
 
+    val state = rememberPagerState { listId.size }
+
     HorizontalPager(
+        state = state,
         modifier = Modifier.fillMaxSize(),
-        pageCount = listId.size,
     ) { index ->
         ScaleBox(
             modifier = Modifier.fillMaxSize(),
