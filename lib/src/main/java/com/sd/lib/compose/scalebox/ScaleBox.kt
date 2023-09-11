@@ -26,7 +26,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
-import com.sd.lib.compose.gesture.fClick
+import com.sd.lib.compose.gesture.fCombinedClick
 import com.sd.lib.compose.gesture.fConsume
 import com.sd.lib.compose.gesture.fConsumePositionChanged
 import com.sd.lib.compose.gesture.fHasConsumed
@@ -131,12 +131,12 @@ fun ScaleBox(
                                 }
                             },
                         )
-                        .fClick(
-                            onTap = {
+                        .fCombinedClick(
+                            onClick = {
                                 logMsg(debug) { "onTap" }
                                 onTap?.invoke()
                             },
-                            onDoubleTap = {
+                            onDoubleClick = {
                                 logMsg(debug) { "onDoubleTap" }
                                 state.handleDoubleClick()
                             },
