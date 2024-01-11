@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -14,6 +15,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,13 +25,12 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
-import com.sd.lib.compose.gesture.fCombinedClick
 import com.sd.lib.compose.gesture.fConsume
-import com.sd.lib.compose.gesture.fConsumePositionChanged
-import com.sd.lib.compose.gesture.fHasConsumed
 import com.sd.lib.compose.gesture.fPointer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -50,6 +51,8 @@ fun ScaleBox(
     onTap: (() -> Unit)? = null,
     content: @Composable (Modifier) -> Unit,
 ) {
+    val onTapUpdated by rememberUpdatedState(onTap)
+
     var hasDrag by remember { mutableStateOf(false) }
     var hasScale by remember { mutableStateOf(false) }
 
@@ -58,9 +61,9 @@ fun ScaleBox(
             .fillMaxSize()
             .clipToBounds()
             .onGloballyPositioned { state.boxSize = it.size }
-            .let {
+            .let { m ->
                 if (state.isReady) {
-                    it
+                    m
                         .fPointer(
                             pass = PointerEventPass.Initial,
                             onStart = {
@@ -71,27 +74,38 @@ fun ScaleBox(
                         // calculatePan
                         .fPointer(
                             onStart = {
-                                this.enableVelocity = true
                                 this.calculatePan = true
                                 hasDrag = false
                             },
                             onCalculate = {
-                                if (!currentEvent.fHasConsumed() && maxPointerCount == 1) {
-                                    val dragResult = state.handleDrag(this.pan)
-                                    logMsg(debug) { "pan drag $dragResult" }
-                                    when (dragResult) {
-                                        DragResult.Changed -> {
-                                            currentEvent.fConsume()
-                                            hasDrag = true
-                                        }
+                                if (maxPointerCount == 1) {
+                                    currentEvent.changes
+                                        .firstOrNull { it.positionChanged() }
+                                        ?.let { input ->
+                                            val dragResult = state.handleDrag(this.pan)
+                                            logMsg(debug) { "pan drag $dragResult" }
+                                            when (dragResult) {
+                                                DragResult.Changed -> {
+                                                    input.consume()
+                                                    hasDrag = true
+                                                }
 
-                                        else -> {}
-                                    }
+                                                else -> {}
+                                            }
+                                        }
+                                } else if (maxPointerCount > 1) {
+                                    cancelPointer()
+                                    hasDrag = false
+                                }
+                            },
+                            onMove = { input ->
+                                if (hasDrag) {
+                                    velocityAdd(input)
                                 }
                             },
                             onUp = { input ->
                                 if (hasDrag && !input.isConsumed && maxPointerCount == 1) {
-                                    getPointerVelocity(input.id)?.let { velocity ->
+                                    velocityGet(input.id)?.let { velocity ->
                                         logMsg(debug) { "pan onUp" }
                                         state.handleDragFling(velocity)
                                     }
@@ -106,7 +120,7 @@ fun ScaleBox(
                                 hasScale = false
                             },
                             onCalculate = {
-                                if (!currentEvent.fHasConsumed()) {
+                                if (pointerCount == 2 && currentEvent.changes.any { it.positionChanged() }) {
                                     if (!hasScale) {
                                         hasScale = true
                                         logMsg(debug) { "zoom onScaleStart" }
@@ -122,7 +136,7 @@ fun ScaleBox(
                                 }
                             },
                             onUp = {
-                                if (currentEvent.fHasConsumed() || pointerCount == 2) {
+                                if (pointerCount == 2) {
                                     if (hasScale) {
                                         logMsg(debug) { "zoom onScaleFinish" }
                                         hasScale = false
@@ -131,18 +145,20 @@ fun ScaleBox(
                                 }
                             },
                         )
-                        .fCombinedClick(
-                            onClick = {
-                                logMsg(debug) { "onTap" }
-                                onTap?.invoke()
-                            },
-                            onDoubleClick = {
-                                logMsg(debug) { "onDoubleTap" }
-                                state.handleDoubleClick()
-                            },
-                        )
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onDoubleTap = {
+                                    logMsg(debug) { "onDoubleTap" }
+                                    state.handleDoubleClick()
+                                },
+                                onTap = {
+                                    logMsg(debug) { "onTap" }
+                                    onTapUpdated?.invoke()
+                                },
+                            )
+                        }
                 } else {
-                    it
+                    m
                 }
             }
 
@@ -302,7 +318,7 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
     }
 
     internal fun onScale(event: PointerEvent, centroid: Offset, change: Float) {
-        event.fConsumePositionChanged()
+        event.fConsume { it.positionChanged() }
 
         val min = minScaleDrag
         val max = if (_startScale == maxScale) maxScaleDrag else maxScale
