@@ -42,12 +42,13 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
     private var _animateOffsetX = Animatable(0f)
     private var _animateOffsetY = Animatable(0f)
 
-    internal var boxSize by mutableStateOf(IntSize.Zero)
-    internal var contentSize by mutableStateOf(IntSize.Zero)
     internal val isReady by derivedStateOf {
         boxSize.width > 0 && boxSize.height > 0
                 && contentSize.width > 0 && contentSize.height > 0
     }
+
+    internal var boxSize by mutableStateOf(IntSize.Zero)
+    internal var contentSize by mutableStateOf(IntSize.Zero)
 
     var scale by mutableFloatStateOf(defaultScale)
         private set
