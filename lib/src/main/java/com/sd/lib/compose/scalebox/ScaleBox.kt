@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import com.sd.lib.compose.gesture.fPointer
 
 @Composable
@@ -37,8 +37,8 @@ fun ScaleBox(
         modifier = modifier
             .fillMaxSize()
             .clipToBounds()
-            .onGloballyPositioned {
-                state.boxSize = it.size
+            .onSizeChanged {
+                state.boxSize = it
             }
             .let { m ->
                 if (state.isReady) {
@@ -145,8 +145,8 @@ fun ScaleBox(
         content(
             Modifier
                 .align(Alignment.Center)
-                .onGloballyPositioned {
-                    state.contentSize = it.size
+                .onSizeChanged {
+                    state.contentSize = it
                 }
                 .graphicsLayer(
                     scaleX = state.scale,
