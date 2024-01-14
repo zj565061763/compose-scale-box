@@ -308,9 +308,9 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
 }
 
 private class BoundsHandler(
-    val boxSize: Int,
-    val contentSize: Int,
-    val scale: Float,
+    private val boxSize: Int,
+    private val contentSize: Int,
+    private val scale: Float,
     val pivot: Float,
 ) {
     init {
