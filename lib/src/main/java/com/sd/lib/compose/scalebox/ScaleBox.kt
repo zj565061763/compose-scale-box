@@ -26,7 +26,7 @@ fun ScaleBox(
     state: ScaleBoxState = rememberScaleBoxState(),
     debug: Boolean = false,
     onTap: (() -> Unit)? = null,
-    content: @Composable (Modifier) -> Unit,
+    content: @Composable () -> Unit,
 ) {
     val onTapUpdated by rememberUpdatedState(onTap)
 
@@ -139,23 +139,35 @@ fun ScaleBox(
                 } else {
                     m
                 }
-            }
-
+            },
+        contentAlignment = Alignment.Center,
     ) {
-        content(
-            Modifier
-                .align(Alignment.Center)
-                .onSizeChanged {
-                    state.contentSize = it
-                }
-                .graphicsLayer(
-                    scaleX = state.scale,
-                    scaleY = state.scale,
-                    translationX = state.offsetX,
-                    translationY = state.offsetY,
-                    transformOrigin = state.transformOrigin,
-                )
+        ContentBox(
+            state = state,
+            content = content,
         )
+    }
+}
+
+@Composable
+private fun ContentBox(
+    state: ScaleBoxState,
+    content: @Composable () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .onSizeChanged {
+                state.contentSize = it
+            }
+            .graphicsLayer(
+                scaleX = state.scale,
+                scaleY = state.scale,
+                translationX = state.offsetX,
+                translationY = state.offsetY,
+                transformOrigin = state.transformOrigin,
+            ),
+    ) {
+        content()
     }
 }
 

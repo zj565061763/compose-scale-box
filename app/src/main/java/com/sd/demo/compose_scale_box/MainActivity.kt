@@ -34,10 +34,9 @@ private fun Sample() {
     ScaleBox(
         modifier = Modifier.fillMaxSize(),
         debug = true,
-    ) { scaleModifier ->
+    ) {
         Image(
             painter = painterResource(id = R.drawable.image1),
-            modifier = scaleModifier,
             contentDescription = "",
         )
     }
@@ -63,10 +62,10 @@ private fun SampleInPager() {
         ScaleBox(
             modifier = Modifier.fillMaxSize(),
             debug = true,
-        ) { scaleModifier ->
+        ) {
             Image(
                 painter = painterResource(id = listId[index]),
-                modifier = scaleModifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = "",
             )
