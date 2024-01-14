@@ -27,6 +27,9 @@ private fun Content() {
     ScaleBox(
         modifier = Modifier.fillMaxSize(),
         debug = true,
+        onTap = {
+            logMsg { "onTap" }
+        },
     ) {
         Image(
             painter = painterResource(id = R.drawable.image1),

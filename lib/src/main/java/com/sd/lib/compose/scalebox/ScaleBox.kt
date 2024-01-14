@@ -12,6 +12,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -28,8 +29,6 @@ fun ScaleBox(
     onTap: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
-    val onTapUpdated by rememberUpdatedState(onTap)
-
     var hasDrag by remember { mutableStateOf(false) }
     var hasScale by remember { mutableStateOf(false) }
 
@@ -124,18 +123,11 @@ fun ScaleBox(
                                 }
                             },
                         )
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onDoubleTap = {
-                                    logMsg(debug) { "onDoubleTap" }
-                                    state.handleDoubleClick()
-                                },
-                                onTap = {
-                                    logMsg(debug) { "onTap" }
-                                    onTapUpdated?.invoke()
-                                },
-                            )
-                        }
+                        .handleTap(
+                            state = state,
+                            debug = debug,
+                            onTap = onTap,
+                        )
                 } else {
                     m
                 }
@@ -145,6 +137,26 @@ fun ScaleBox(
         ContentBox(
             state = state,
             content = content,
+        )
+    }
+}
+
+private fun Modifier.handleTap(
+    state: ScaleBoxState,
+    debug: Boolean,
+    onTap: (() -> Unit)? = null,
+): Modifier = composed {
+    val onTapUpdated by rememberUpdatedState(onTap)
+    this.pointerInput(Unit) {
+        detectTapGestures(
+            onDoubleTap = {
+                logMsg(debug) { "onDoubleTap" }
+                state.handleDoubleClick()
+            },
+            onTap = {
+                logMsg(debug) { "onTap" }
+                onTapUpdated?.invoke()
+            },
         )
     }
 }
