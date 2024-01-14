@@ -37,7 +37,9 @@ fun ScaleBox(
         modifier = modifier
             .fillMaxSize()
             .clipToBounds()
-            .onGloballyPositioned { state.boxSize = it.size }
+            .onGloballyPositioned {
+                state.boxSize = it.size
+            }
             .let { m ->
                 if (state.isReady) {
                     m
@@ -143,7 +145,9 @@ fun ScaleBox(
         content(
             Modifier
                 .align(Alignment.Center)
-                .onGloballyPositioned { state.contentSize = it.size }
+                .onGloballyPositioned {
+                    state.contentSize = it.size
+                }
                 .graphicsLayer(
                     scaleX = state.scale,
                     scaleY = state.scale,
