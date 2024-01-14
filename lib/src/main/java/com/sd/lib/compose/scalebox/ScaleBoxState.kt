@@ -320,13 +320,13 @@ private class BoundsHandler(
         require(scale > 0)
     }
 
-    private val halfDeltaSize get() = (boxSize - contentSize) / 2f
-    private val currentSize get() = contentSize * scale
+    private val halfDeltaSize: Float get() = (boxSize - contentSize) / 2f
+    private val currentSize: Float get() = contentSize * scale
 
-    val changedSize get() = currentSize - contentSize
-    val isOverSize get() = currentSize > boxSize
+    val changedSize: Float get() = currentSize - contentSize
+    val isOverSize: Boolean get() = currentSize > boxSize
 
-    val minOffset
+    val minOffset: Float
         get() = if (isOverSize) {
             val pivotSize = changedSize * (1f - pivot)
             halfDeltaSize - pivotSize
@@ -334,7 +334,7 @@ private class BoundsHandler(
             0f
         }
 
-    val maxOffset
+    val maxOffset: Float
         get() = if (isOverSize) {
             val pivotSize = changedSize * (pivot)
             pivotSize - halfDeltaSize
@@ -342,7 +342,7 @@ private class BoundsHandler(
             0f
         }
 
-    val centerOffset
+    val centerOffset: Float
         get() = if (isOverSize) {
             val delta = (maxOffset - minOffset) / 2f
             minOffset + delta
