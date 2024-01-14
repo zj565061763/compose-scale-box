@@ -48,43 +48,13 @@ fun ScaleBox(
                                 state.cancelAnimator()
                             },
                         )
-
                         .handleDrag(
                             state = state,
                             debug = debug,
                         )
-
-                        // calculateZoom
-                        .fPointer(
-                            onStart = {
-                                this.calculateZoom = true
-                                hasScale = false
-                            },
-                            onCalculate = {
-                                if (pointerCount == 2 && currentEvent.changes.any { it.positionChanged() }) {
-                                    if (!hasScale) {
-                                        hasScale = true
-                                        logMsg(debug) { "zoom onScaleStart" }
-                                        state.onScaleStart()
-                                    }
-
-                                    logMsg(debug) { "zoom onScale" }
-                                    state.onScale(
-                                        event = this.currentEvent,
-                                        centroid = this.centroid,
-                                        change = this.zoom,
-                                    )
-                                }
-                            },
-                            onUp = {
-                                if (pointerCount == 2) {
-                                    if (hasScale) {
-                                        logMsg(debug) { "zoom onScaleFinish" }
-                                        hasScale = false
-                                        state.onScaleFinish()
-                                    }
-                                }
-                            },
+                        .handleScale(
+                            state = state,
+                            debug = debug,
                         )
                         .handleTap(
                             state = state,
@@ -145,6 +115,44 @@ private fun Modifier.handleDrag(
                 velocityGet(input.id)?.let { velocity ->
                     logMsg(debug) { "pan onUp" }
                     state.handleDragFling(velocity)
+                }
+            }
+        },
+    )
+}
+
+private fun Modifier.handleScale(
+    state: ScaleBoxState,
+    debug: Boolean,
+): Modifier = composed {
+    var hasScale by remember { mutableStateOf(false) }
+    this.fPointer(
+        onStart = {
+            this.calculateZoom = true
+            hasScale = false
+        },
+        onCalculate = {
+            if (pointerCount == 2 && currentEvent.changes.any { it.positionChanged() }) {
+                if (!hasScale) {
+                    hasScale = true
+                    logMsg(debug) { "zoom onScaleStart" }
+                    state.onScaleStart()
+                }
+
+                logMsg(debug) { "zoom onScale" }
+                state.onScale(
+                    event = this.currentEvent,
+                    centroid = this.centroid,
+                    change = this.zoom,
+                )
+            }
+        },
+        onUp = {
+            if (pointerCount == 2) {
+                if (hasScale) {
+                    logMsg(debug) { "zoom onScaleFinish" }
+                    hasScale = false
+                    state.onScaleFinish()
                 }
             }
         },
