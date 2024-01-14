@@ -1,74 +1,69 @@
 package com.sd.demo.compose_scale_box
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.sd.demo.compose_scale_box.ui.theme.AppTheme
-import com.sd.lib.compose.scalebox.ScaleBox
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             AppTheme {
-                SampleInPager()
+                Content(
+                    listActivity = listOf(
+                        SampleDefault::class.java,
+                        SampleInPager::class.java,
+                    ),
+                    onClickActivity = {
+                        startActivity(Intent(this, it))
+                    },
+                )
             }
         }
     }
 }
 
 @Composable
-private fun Sample() {
-    ScaleBox(
-        modifier = Modifier.fillMaxSize(),
-        debug = true,
+private fun Content(
+    listActivity: List<Class<out Activity>>,
+    onClickActivity: (Class<out Activity>) -> Unit,
+) {
+    val onClickActivityUpdated by rememberUpdatedState(onClickActivity)
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.image1),
-            contentDescription = "",
-        )
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun SampleInPager() {
-    val listId = remember {
-        listOf(
-            R.drawable.image1,
-            R.drawable.image2,
-            R.drawable.image3,
-        )
-    }
-
-    val state = rememberPagerState { listId.size }
-
-    HorizontalPager(
-        state = state,
-        modifier = Modifier.fillMaxSize(),
-    ) { index ->
-        ScaleBox(
-            modifier = Modifier.fillMaxSize(),
-            debug = true,
-        ) {
-            Image(
-                painter = painterResource(id = listId[index]),
+        items(
+            listActivity,
+            key = { it },
+        ) { item ->
+            Button(
+                onClick = { onClickActivityUpdated(item) },
                 modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.FillWidth,
-                contentDescription = "",
-            )
+            ) {
+                Text(text = item.simpleName)
+            }
         }
     }
 }
