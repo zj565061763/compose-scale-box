@@ -29,9 +29,6 @@ fun ScaleBox(
     onTap: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
-    var hasDrag by remember { mutableStateOf(false) }
-    var hasScale by remember { mutableStateOf(false) }
-
     Box(
         modifier = modifier
             .fillMaxSize()
