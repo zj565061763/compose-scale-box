@@ -49,46 +49,9 @@ fun ScaleBox(
                             },
                         )
 
-                        // calculatePan
-                        .fPointer(
-                            onStart = {
-                                this.calculatePan = true
-                                hasDrag = false
-                            },
-                            onCalculate = {
-                                if (maxPointerCount == 1) {
-                                    currentEvent.changes
-                                        .firstOrNull { it.positionChanged() }
-                                        ?.let { input ->
-                                            val dragResult = state.handleDrag(this.pan)
-                                            logMsg(debug) { "pan drag $dragResult" }
-                                            when (dragResult) {
-                                                DragResult.Changed -> {
-                                                    input.consume()
-                                                    hasDrag = true
-                                                }
-
-                                                else -> {}
-                                            }
-                                        }
-                                } else if (maxPointerCount > 1) {
-                                    cancelPointer()
-                                    hasDrag = false
-                                }
-                            },
-                            onMove = { input ->
-                                if (hasDrag) {
-                                    velocityAdd(input)
-                                }
-                            },
-                            onUp = { input ->
-                                if (hasDrag && !input.isConsumed && maxPointerCount == 1) {
-                                    velocityGet(input.id)?.let { velocity ->
-                                        logMsg(debug) { "pan onUp" }
-                                        state.handleDragFling(velocity)
-                                    }
-                                }
-                            },
+                        .handleDrag(
+                            state = state,
+                            debug = debug,
                         )
 
                         // calculateZoom
@@ -139,6 +102,53 @@ fun ScaleBox(
             content = content,
         )
     }
+}
+
+private fun Modifier.handleDrag(
+    state: ScaleBoxState,
+    debug: Boolean,
+): Modifier = composed {
+    var hasDrag by remember { mutableStateOf(false) }
+    this.fPointer(
+        onStart = {
+            this.calculatePan = true
+            hasDrag = false
+        },
+        onCalculate = {
+            if (maxPointerCount == 1) {
+                currentEvent.changes
+                    .firstOrNull { it.positionChanged() }
+                    ?.let { input ->
+                        val dragResult = state.handleDrag(this.pan)
+                        logMsg(debug) { "pan drag $dragResult" }
+                        when (dragResult) {
+                            DragResult.Changed -> {
+                                input.consume()
+                                hasDrag = true
+                            }
+
+                            else -> {}
+                        }
+                    }
+            } else if (maxPointerCount > 1) {
+                cancelPointer()
+                hasDrag = false
+            }
+        },
+        onMove = { input ->
+            if (hasDrag) {
+                velocityAdd(input)
+            }
+        },
+        onUp = { input ->
+            if (hasDrag && !input.isConsumed && maxPointerCount == 1) {
+                velocityGet(input.id)?.let { velocity ->
+                    logMsg(debug) { "pan onUp" }
+                    state.handleDragFling(velocity)
+                }
+            }
+        },
+    )
 }
 
 private fun Modifier.handleTap(
