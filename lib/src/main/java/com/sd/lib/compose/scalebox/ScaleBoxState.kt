@@ -28,9 +28,9 @@ fun rememberScaleBoxState(): ScaleBoxState {
     return remember(coroutineScope) { ScaleBoxState(coroutineScope) }
 }
 
-class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
-    private val _coroutineScope = coroutineScope
-
+class ScaleBoxState internal constructor(
+    private val scope: CoroutineScope
+) {
     private val defaultScale = 1f
     private val maxScale = 10f
     private val doubleClickScale = 3f
@@ -82,7 +82,7 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
     private var _startScale = 1f
 
     internal fun cancelAnimator() {
-        _coroutineScope.launch {
+        scope.launch {
             _animateScale.stop()
             _animateOffsetX.stop()
             _animateOffsetY.stop()
@@ -90,7 +90,7 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
     }
 
     internal fun handleDoubleClick() {
-        _coroutineScope.launch {
+        scope.launch {
             if (scale == defaultScale) {
                 animateScaleTo(doubleClickScale)
             } else {
@@ -137,7 +137,7 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
     }
 
     internal fun handleDragFling(velocity: Velocity) {
-        _coroutineScope.launch {
+        scope.launch {
             with(boundsX) {
                 _animateOffsetX.stop()
                 _animateOffsetX = Animatable(offsetX).apply { updateBounds(minOffset, maxOffset) }
@@ -149,7 +149,7 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
                 }
             }
         }
-        _coroutineScope.launch {
+        scope.launch {
             with(boundsY) {
                 _animateOffsetY.stop()
                 _animateOffsetY = Animatable(offsetY).apply { updateBounds(minOffset, maxOffset) }
@@ -184,7 +184,7 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
     }
 
     internal fun onScaleFinish() {
-        _coroutineScope.launch {
+        scope.launch {
             if (scale <= defaultScale) {
                 animateScaleTo(defaultScale)
                 return@launch
@@ -260,14 +260,14 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
         }
 
         targetX?.let { target ->
-            _coroutineScope.launch {
+            scope.launch {
                 animateOffsetXTo(target)
                 targetXBlock?.invoke()
             }
         }
 
         targetY?.let { target ->
-            _coroutineScope.launch {
+            scope.launch {
                 animateOffsetYTo(target)
                 targetYBlock?.invoke()
             }
@@ -276,8 +276,8 @@ class ScaleBoxState internal constructor(coroutineScope: CoroutineScope) {
 
     private suspend fun animateScaleTo(targetValue: Float) {
         if (targetValue <= defaultScale) {
-            _coroutineScope.launch { animateOffsetXTo(0f) }
-            _coroutineScope.launch { animateOffsetYTo(0f) }
+            scope.launch { animateOffsetXTo(0f) }
+            scope.launch { animateOffsetYTo(0f) }
         }
 
         _animateScale.snapTo(scale)
