@@ -1,5 +1,3 @@
-# Gradle
-
 [![](https://jitpack.io/v/zj565061763/compose-scale-box.svg)](https://jitpack.io/#zj565061763/compose-scale-box)
 
 # Demo
@@ -13,10 +11,9 @@ fun SimpleSample() {
         onTap = {
             logMsg { "onTap" }
         }
-    ) { scaleModifier ->
+    ) {
         Image(
             painter = painterResource(id = R.drawable.image1),
-            modifier = scaleModifier,
             contentDescription = "",
         )
     }
